@@ -8,5 +8,6 @@ license = "MIT"
 keywords = ["linked_list", "stack", "queue"]
 categories = ["data-structures"]
 exclude = [".idea/"]
+repository = "https://github.com/EMachad0/rust_linked_list"
 
 [dependencies]
