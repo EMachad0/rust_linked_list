@@ -1,7 +1,16 @@
+//! A stack is a linear data structure that follows the principle of Last In First Out (LIFO).
+//!
+//! This means the last element inserted inside the stack is removed first.
+//!
+//! This Stack implementation uses the linked list concept.
+//! This implementation is 100% safe rust
+//!
+
 use std::mem;
 
 type Link<T> = Option<Box<Node<T>>>;
 
+/// Stack Struct
 #[derive(Debug)]
 pub struct Stack<T>(Link<T>);
 
@@ -12,10 +21,29 @@ struct Node<T> {
 }
 
 impl<T> Stack<T> {
+    /// Creates a new [`Stack`]
+    ///
+    /// # Example
+    /// ```
+    /// use linked_lists_rs::stack::Stack;
+    /// let stack = Stack::new();
+    /// ```
     pub fn new() -> Self {
         Stack(None)
     }
 
+    /// Push a new value on the top of the [`Stack`]
+    ///
+    /// # Example
+    /// ```
+    /// use linked_lists_rs::stack::Stack;
+    ///
+    /// let mut stack = Stack::new();
+    ///
+    /// stack.push(5);
+    ///
+    /// assert_eq!(Some(5), stack.pop());
+    /// ```
     pub fn push(&mut self, value: T) {
         let new_node = Node {
             value,
@@ -25,6 +53,19 @@ impl<T> Stack<T> {
         self.0 = Some(Box::new(new_node))
     }
 
+    /// Pops and return the value on the top of the [`Stack`]
+    /// Returns `None` if the [`Stack`] is empty
+    ///
+    /// # Example
+    /// ```
+    /// use linked_lists_rs::stack::Stack;
+    /// let mut stack = Stack::new();
+    ///
+    /// stack.push(5);
+    ///
+    /// assert_eq!(Some(5), stack.pop());
+    /// assert_eq!(None, stack.pop());
+    /// ```
     pub fn pop(&mut self) -> Option<T> {
         let link = mem::take(&mut self.0);
         link.map(|node| {
@@ -33,11 +74,40 @@ impl<T> Stack<T> {
         })
     }
 
+    /// Return a reference to the value on the top of the [`Stack`]
+    /// Returns `None` if the [`Stack`] is empty
+    ///
+    /// # Example
+    /// ```
+    /// use linked_lists_rs::stack::Stack;
+    /// let mut stack = Stack::new();
+    ///
+    /// stack.push(5);
+    ///
+    /// assert_eq!(Some(&5), stack.peek());
+    /// assert_eq!(Some(5), stack.pop());
+    /// assert_eq!(None, stack.peek());
+    /// ```
     pub fn peek(&self) -> Option<&T> {
         let link = self.0.as_ref();
         link.map(|node| &node.value)
     }
 
+    /// Return a mutable reference to the value on the top of the [`Stack`]
+    /// Returns `None` if the [`Stack`] is empty
+    ///
+    /// # Example
+    /// ```
+    /// use linked_lists_rs::stack::Stack;
+    /// let mut stack = Stack::new();
+    ///
+    /// stack.push(5);
+    ///
+    /// assert_eq!(Some(&mut 5), stack.peek_mut());
+    /// *stack.peek_mut().unwrap() *= 5;
+    /// assert_eq!(Some(25), stack.pop());
+    /// assert_eq!(None, stack.peek_mut());
+    /// ```
     pub fn peek_mut(&mut self) -> Option<&mut T> {
         let link = self.0.as_mut();
         link.map(|node| &mut node.value)
@@ -66,6 +136,25 @@ impl<T> Iterator for IntoIter<T> {
 }
 
 impl<T> Stack<T> {
+    /// Iterator to the [`Stack`]
+    /// Consumes the data structure on iteration
+    ///
+    /// # Example
+    /// ```
+    /// use linked_lists_rs::stack;
+    ///
+    /// let mut stack = stack::Stack::new();
+    /// // Insert values into the stack
+    /// for x in [1, 2, 3] {
+    ///     stack.push(x);
+    /// }
+    ///
+    /// // iterate the stack verify its values
+    /// for (i, x) in std::iter::zip(stack, [3, 2, 1]) {
+    ///     assert_eq!(i, x);
+    /// }
+    ///
+    /// ```
     pub fn into_iter(self) -> IntoIter<T> {
         IntoIter(self)
     }
@@ -104,6 +193,26 @@ impl<'a, T> IntoIterator for &'a Stack<T> {
 }
 
 impl<T> Stack<T> {
+    /// Reference Iterator to the [`Stack`]
+    ///
+    /// # Example
+    /// ```
+    /// use linked_lists_rs::stack;
+    /// let mut stack = stack::Stack::new();
+    ///
+    /// // Insert values into the stack
+    /// for x in [1, 2, 3] {
+    ///     stack.push(x);
+    /// }
+    ///
+    /// // use iter to iterate the stack verify its values
+    /// for (i, x) in std::iter::zip(&stack, [3, 2, 1]) {
+    ///     assert_eq!(i, &x);
+    /// }
+    ///
+    /// // stack is not consumed
+    /// assert_eq!(Some(&3), stack.peek());
+    /// ```
     pub fn iter(&self) -> Iter<'_, T> {
         let node = self.0.as_deref();
         Iter(node)
@@ -134,6 +243,28 @@ impl<'a, T> IntoIterator for &'a mut Stack<T> {
 }
 
 impl<T> Stack<T> {
+    /// Mutable Reference Iterator to the [`Stack`]
+    ///
+    /// # Example
+    /// ```
+    /// use linked_lists_rs::stack;
+    /// let mut stack = stack::Stack::new();
+    ///
+    /// // Insert values into the stack
+    /// for x in [1, 2, 3] {
+    ///     stack.push(x);
+    /// }
+    ///
+    /// // use iter_mut to iterate the stack and mutate it's values
+    /// for i in &mut stack {
+    ///     *i *= 2;
+    /// }
+    ///
+    /// // assert values mutate as expected
+    /// for x in [6, 4, 2] {
+    ///     assert_eq!(Some(x), stack.pop());
+    /// }
+    /// ```
     pub fn iter_mut(&mut self) -> IterMut<'_, T> {
         let node = self.0.as_deref_mut();
         IterMut(node)

@@ -11,11 +11,15 @@
 //!
 //! # Example
 //! ```
-//! use linked_lists_rs::stack;
+//! use linked_lists_rs::stack::Stack;
 //!
-//! fn main() {
-//!     let mut stack = stack::Stack::new();
-//! }
+//! let mut stack = Stack::new();
+//!
+//! stack.push(5);
+//!
+//! assert_eq!(Some(&5), stack.peek());
+//! assert_eq!(Some(5), stack.pop());
+//! assert_eq!(None, stack.pop());
 //! ```
 
 /// Immutable List implementation
