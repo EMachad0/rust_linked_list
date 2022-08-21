@@ -1,5 +1,5 @@
 [package]
-name = "rust_linked_list"
+name = "linked_lists_rs"
 version = "0.1.0"
 edition = "2021"
 authors = ["Eliton <eliton.machadod200@gmail.com>"]

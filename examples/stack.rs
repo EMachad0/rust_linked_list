@@ -1,4 +1,4 @@
-use rust_linked_list::stack;
+use linked_lists_rs::stack;
 
 fn main() {
     let mut stack = stack::Stack::new();

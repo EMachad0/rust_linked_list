@@ -1,6 +1,6 @@
-# Rust Linked List
+# Rust Linked Lists
 
-This crate aims to provide implementations of several data structures using linked lists as their underlying data structure
+This crate aims to provide implementations in Rust of several data structures using linked lists as their underlying data structure
 
 ### Currently, the implemented data structures are:
 
