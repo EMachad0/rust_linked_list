@@ -2,7 +2,11 @@
 name = "rust_linked_list"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Eliton <eliton.machadod200@gmail.com>"]
+description = "implementation of various data structures using linked lists in rust"
+license = "MIT"
+keywords = ["linked_list", "stack", "queue"]
+categories = ["data-structures"]
+exclude = [".idea/"]
 
 [dependencies]
