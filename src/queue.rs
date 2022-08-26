@@ -1,7 +1,19 @@
+//! A [`Queue`] is a linear structure which follows a particular order in which
+//! the operations are performed.
+//! The order is First In First Out (FIFO).
+//!
+//! This means the element least recently added is removed first.
+//!
+//! This [`Queue`] implementation uses the linked list concept.
+//! This implementation uses raw pointers and the unsafe keyword
+//! this is so to preserve performance and aims to be a 100% safe abstraction
+//!
+
 use std::ptr::null_mut;
 
 type Link<T> = *mut Node<T>;
 
+/// Queue Struct
 #[derive(Debug)]
 pub struct Queue<T> {
     head: Link<T>,
@@ -24,6 +36,14 @@ impl<T> Node<T> {
 }
 
 impl<T> Queue<T> {
+    /// Creates a new [`Queue`]
+    ///
+    /// # Example
+    /// Creating a new [`Queue`] of `i32`
+    /// ```
+    /// use linked_lists_rs::queue::Queue;
+    /// let queue: Queue<i32> = Queue::new();
+    /// ```
     pub fn new() -> Self {
         Self {
             head: null_mut(),
@@ -31,6 +51,17 @@ impl<T> Queue<T> {
         }
     }
 
+    /// Push a new value on the end of the [`Queue`]
+    ///
+    /// # Example
+    /// ```
+    /// # use linked_lists_rs::queue::Queue;
+    /// let mut queue = Queue::new();
+    ///
+    /// queue.push(5);
+    ///
+    /// assert_eq!(Some(5), queue.pop());
+    /// ```
     pub fn push(&mut self, value: T) {
         let new_last = Box::new(Node::new(value));
         let new_last_prt: *mut _ = Box::into_raw(new_last);
@@ -45,6 +76,19 @@ impl<T> Queue<T> {
         self.last = new_last_prt;
     }
 
+    /// Pops and return the value on the front of the [`Queue`]
+    /// Returns `None` if the [`Queue`] is empty
+    ///
+    /// # Example
+    /// ```
+    /// # use linked_lists_rs::queue::Queue;
+    /// let mut queue = Queue::new();
+    ///
+    /// queue.push(5);
+    ///
+    /// assert_eq!(Some(5), queue.pop());
+    /// assert_eq!(None, queue.pop());
+    /// ```
     pub fn pop(&mut self) -> Option<T> {
         if self.head.is_null() {
             None
@@ -60,22 +104,53 @@ impl<T> Queue<T> {
         }
     }
 
+    /// Return a reference to the value on the front of the [`Queue`]
+    /// Returns `None` if the [`Queue`] is empty
+    ///
+    /// # Example
+    /// ```
+    /// # use linked_lists_rs::queue::Queue;
+    /// let mut queue = Queue::new();
+    ///
+    /// queue.push(5);
+    ///
+    /// assert_eq!(Some(&5), queue.peek());
+    /// assert_eq!(Some(5), queue.pop());
+    /// assert_eq!(None, queue.peek());
+    /// ```
     pub fn peek(&self) -> Option<&T> {
         unsafe { self.head.as_ref().map(|node| &node.value) }
     }
 
+    /// Return a mutable reference to the value on the front of the [`Queue`]
+    /// Returns `None` if the [`Queue`] is empty
+    ///
+    /// # Example
+    /// ```
+    /// # use linked_lists_rs::queue::Queue;
+    /// let mut queue = Queue::new();
+    ///
+    /// queue.push(5);
+    ///
+    /// assert_eq!(Some(&mut 5), queue.peek_mut());
+    /// queue.peek_mut().map(|mut v| *v *= 5);
+    /// assert_eq!(Some(25), queue.pop());
+    /// assert_eq!(None, queue.peek_mut());
+    /// ```
     pub fn peek_mut(&mut self) -> Option<&mut T> {
         unsafe { self.head.as_mut().map(|node| &mut node.value) }
     }
 }
 
+// Custom code within the destructor.
 impl<T> Drop for Queue<T> {
     fn drop(&mut self) {
         while let Some(_) = self.pop() {}
     }
 }
 
-// IntoIter for consumed iteration
+/// [`IntoIter`] struct for [`Queue`] consumed iteration
+/// Iterate from front to end
 pub struct IntoIter<T>(Queue<T>);
 
 impl<T> Iterator for IntoIter<T> {
@@ -96,12 +171,31 @@ impl<T> IntoIterator for Queue<T> {
 }
 
 impl<T> Queue<T> {
+    /// Iterator to the [`Queue`]
+    /// Consumes the data structure on iteration
+    ///
+    /// # Example
+    /// ```
+    /// # use linked_lists_rs::queue::Queue;
+    /// let mut queue = Queue::new();
+    ///
+    /// // Insert values into the queue
+    /// for x in [1, 2, 3] {
+    ///     queue.push(x);
+    /// }
+    ///
+    /// // Iterate the queue and verify its values
+    /// for (i, x) in std::iter::zip(queue, [1, 2, 3]) {
+    ///     assert_eq!(i, x);
+    /// }
+    /// ```
     pub fn into_iter(self) -> IntoIter<T> {
         IntoIter(self)
     }
 }
 
-// Iter for referenced iteration
+/// [`Iter`] struct for [`Queue`] referenced iteration
+/// Iterate from front to end
 pub struct Iter<'a, T>(Option<&'a Node<T>>);
 
 impl<'a, T> Iterator for Iter<'a, T> {
@@ -127,12 +221,33 @@ impl<'a, T> IntoIterator for &'a Queue<T> {
 }
 
 impl<T> Queue<T> {
+    /// Reference Iterator to the [`Queue`]
+    ///
+    /// # Example
+    /// ```
+    /// # use linked_lists_rs::queue::Queue;
+    /// let mut queue = Queue::new();
+    ///
+    /// // Insert values into the stack
+    /// for x in [1, 2, 3] {
+    ///     queue.push(x);
+    /// }
+    ///
+    /// // Use iter to iterate the stack and verify its values
+    /// for (i, x) in std::iter::zip(&queue, [1, 2, 3]) {
+    ///     assert_eq!(i, &x);
+    /// }
+    ///
+    /// // Stack is not consumed
+    /// assert_eq!(Some(&1), queue.peek());
+    /// ```
     pub fn iter(&self) -> Iter<'_, T> {
         unsafe { Iter(self.head.as_ref()) }
     }
 }
 
-// IterMut for mutable referenced iteration
+/// [`IterMut`] struct for [`Queue`] mutable referenced iteration
+/// Iterate from front to end
 pub struct IterMut<'a, T>(Option<&'a mut Node<T>>);
 
 impl<'a, T> Iterator for IterMut<'a, T> {
@@ -158,6 +273,28 @@ impl<'a, T> IntoIterator for &'a mut Queue<T> {
 }
 
 impl<T> Queue<T> {
+    /// Mutable Reference Iterator to the [`Queue`]
+    ///
+    /// # Example
+    /// ```
+    /// # use linked_lists_rs::queue::Queue;
+    /// let mut queue = Queue::new();
+    ///
+    /// // Insert values into the stack
+    /// for x in [1, 2, 3] {
+    ///     queue.push(x);
+    /// }
+    ///
+    /// // Use iter_mut to iterate the stack and mutate it's values
+    /// for i in &mut queue {
+    ///     *i *= 2;
+    /// }
+    ///
+    /// // Assert values mutate as expected
+    /// for x in [2, 4, 6] {
+    ///     assert_eq!(Some(x), queue.pop());
+    /// }
+    /// ```
     pub fn iter_mut(&mut self) -> IterMut<'_, T> {
         unsafe { IterMut(self.head.as_mut()) }
     }
